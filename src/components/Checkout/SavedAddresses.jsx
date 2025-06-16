@@ -6,6 +6,17 @@ import { getToken } from "../../features/auth/utils/tokenUtils"; // ✅ المس
 const SavedAddresses = () => {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [formData, setFormData] = useState({
+    id: "",
+    givenName: "",
+    surName: "",
+    street: "",
+    city: "",
+    state: "",
+    country: "",
+    postalCode: "",
+  });
 
   const token = getToken(); // ✅ التوكن من secure-ls
 
@@ -63,6 +74,37 @@ const SavedAddresses = () => {
     }
   };
 
+  const handleEdit = (address) => {
+    setEditingAddress(address.id);
+    setFormData({ ...address });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const res = await fetch(
+        "https://test.newulmmed.com/api/BillingAddress/UpdateBillingAddress",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!res.ok) throw new Error("فشل التحديث");
+
+      setAddresses((prev) =>
+        prev.map((addr) => (addr.id === formData.id ? { ...formData } : addr))
+      );
+      setEditingAddress(null);
+    } catch (err) {
+      console.error("Error updating address:", err);
+      alert("حدث خطأ أثناء التحديث");
+    }
+  };
+
   return (
     <div
       className="bg-white p-6 rounded-xl shadow-sm w-full max-w-[582px] text-right"
@@ -117,7 +159,10 @@ const SavedAddresses = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button className="w-[18px] h-[18px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition">
+                  <button
+                    onClick={() => handleEdit(address)}
+                    className="w-[18px] h-[18px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
+                  >
                     <img
                       src={penIcon}
                       alt="Edit"
@@ -146,6 +191,41 @@ const SavedAddresses = () => {
                   {address.postalCode}
                 </p>
               </div>
+
+              {editingAddress === address.id && (
+                <div className="mt-4 bg-gray-50 p-3 rounded-md space-y-2">
+                  {[
+                    { name: "givenName", label: "الاسم الأول" },
+                    { name: "surName", label: "اسم العائلة" },
+                    { name: "street", label: "الشارع" },
+                    { name: "city", label: "المدينة" },
+                    { name: "state", label: "المنطقة" },
+                    { name: "country", label: "الدولة" },
+                    { name: "postalCode", label: "الرمز البريدي" },
+                  ].map((field) => (
+                    <input
+                      key={field.name}
+                      type="text"
+                      name={field.name}
+                      value={formData[field.name]}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [field.name]: e.target.value,
+                        }))
+                      }
+                      className="w-full border p-2 rounded text-sm"
+                      placeholder={field.label}
+                    />
+                  ))}
+                  <button
+                    onClick={handleUpdate}
+                    className="bg-blue-500 text-white px-4 py-1 rounded text-sm hover:bg-blue-600 transition"
+                  >
+                    تحديث
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
