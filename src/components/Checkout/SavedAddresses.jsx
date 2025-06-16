@@ -9,7 +9,7 @@ ReactModal.setAppElement("#root");
 const SavedAddresses = () => {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingAddress, setEditingAddress] = useState(null);
+  const [, setEditingAddress] = useState(null);
   const [formData, setFormData] = useState({
     id: "",
     givenName: "",
@@ -25,6 +25,7 @@ const SavedAddresses = () => {
     isOpen: false,
     addressId: null,
   });
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const token = getToken();
 
@@ -71,9 +72,7 @@ const SavedAddresses = () => {
         `https://test.newulmmed.com/api/BillingAddress/DeleteBillingAddress/${deleteModal.addressId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -90,8 +89,9 @@ const SavedAddresses = () => {
   };
 
   const handleEdit = (address) => {
-    setEditingAddress(address.id);
     setFormData({ ...address });
+    setEditingAddress(address.id);
+    setEditModalOpen(true);
   };
 
   const handleUpdate = async () => {
@@ -113,6 +113,7 @@ const SavedAddresses = () => {
       setAddresses((prev) =>
         prev.map((addr) => (addr.id === formData.id ? { ...formData } : addr))
       );
+      setEditModalOpen(false);
       setEditingAddress(null);
     } catch (err) {
       console.error("Error updating address:", err);
@@ -154,15 +155,11 @@ const SavedAddresses = () => {
                         height="12"
                         viewBox="0 0 24 24"
                         fill="none"
-                        style={{
-                          stroke: "white",
-                          strokeWidth: 3,
-                          shapeRendering: "geometricPrecision",
-                        }}
                       >
                         <path
                           d="M5 13l4 4L19 7"
                           stroke="white"
+                          strokeWidth="3"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         />
@@ -172,7 +169,6 @@ const SavedAddresses = () => {
                     <div className="w-5 h-5 rounded-full border border-gray-400" />
                   )}
                 </div>
-
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(address)}
@@ -196,7 +192,6 @@ const SavedAddresses = () => {
                   </button>
                 </div>
               </div>
-
               <div className="mt-3">
                 <p className="text-gray-500 leading-5">
                   {address.street}، {address.city}، {address.state}،{" "}
@@ -206,47 +201,12 @@ const SavedAddresses = () => {
                   {address.postalCode}
                 </p>
               </div>
-
-              {editingAddress === address.id && (
-                <div className="mt-4 bg-gray-50 p-3 rounded-md space-y-2">
-                  {[
-                    { name: "givenName", label: "الاسم الأول" },
-                    { name: "surName", label: "اسم العائلة" },
-                    { name: "street", label: "الشارع" },
-                    { name: "city", label: "المدينة" },
-                    { name: "state", label: "المنطقة" },
-                    { name: "country", label: "الدولة" },
-                    { name: "postalCode", label: "الرمز البريدي" },
-                  ].map((field) => (
-                    <input
-                      key={field.name}
-                      type="text"
-                      name={field.name}
-                      value={formData[field.name]}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [field.name]: e.target.value,
-                        }))
-                      }
-                      className="w-full border p-2 rounded text-sm"
-                      placeholder={field.label}
-                    />
-                  ))}
-                  <button
-                    onClick={handleUpdate}
-                    className="bg-blue-500 text-white px-4 py-1 rounded text-sm hover:bg-blue-600 transition"
-                  >
-                    تحديث
-                  </button>
-                </div>
-              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <ReactModal
         isOpen={deleteModal.isOpen}
         onRequestClose={() =>
@@ -276,6 +236,101 @@ const SavedAddresses = () => {
               className="bg-gray-200 text-[#1C1C1C] px-6 py-2 rounded-md text-sm hover:bg-gray-300 w-full"
             >
               رجوع
+            </button>
+          </div>
+        </div>
+      </ReactModal>
+
+      {/* Edit Modal */}
+      <ReactModal
+        isOpen={editModalOpen}
+        onRequestClose={() => setEditModalOpen(false)}
+        className="bg-white p-6 max-w-lg mx-auto rounded-xl shadow-xl outline-none"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
+      >
+        <div dir="rtl" className="space-y-4">
+          <h2 className="text-lg font-bold text-center">تعديل العنوان</h2>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium">الاسم الأخير</label>
+              <input
+                value={formData.surName}
+                onChange={(e) =>
+                  setFormData({ ...formData, surName: e.target.value })
+                }
+                className="w-full border p-2 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">الاسم الأول</label>
+              <input
+                value={formData.givenName}
+                onChange={(e) =>
+                  setFormData({ ...formData, givenName: e.target.value })
+                }
+                className="w-full border p-2 rounded"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium">الدولة</label>
+              <input
+                value={formData.country}
+                onChange={(e) =>
+                  setFormData({ ...formData, country: e.target.value })
+                }
+                className="w-full border p-2 rounded"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">المدينة</label>
+              <input
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData({ ...formData, city: e.target.value })
+                }
+                className="w-full border p-2 rounded"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">اسم الشارع</label>
+            <input
+              value={formData.street}
+              onChange={(e) =>
+                setFormData({ ...formData, street: e.target.value })
+              }
+              className="w-full border p-2 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">الرمز البريدي</label>
+            <input
+              value={formData.postalCode}
+              onChange={(e) =>
+                setFormData({ ...formData, postalCode: e.target.value })
+              }
+              className="w-full border p-2 rounded"
+            />
+          </div>
+
+          <div className="flex justify-center gap-4 mt-4">
+            <button
+              onClick={handleUpdate}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+            >
+              حفظ
+            </button>
+            <button
+              onClick={() => setEditModalOpen(false)}
+              className="border border-blue-500 text-blue-500 px-6 py-2 rounded hover:bg-blue-50"
+            >
+              إلغاء
             </button>
           </div>
         </div>
