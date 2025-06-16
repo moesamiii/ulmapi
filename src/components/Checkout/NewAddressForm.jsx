@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuthContext } from "../../features/auth/context/AuthProvider";
 
 const NewAddressForm = () => {
-  const { token, tokenReady } = useAuthContext(); // ✅ Now includes tokenReady
+  const { token, tokenReady } = useAuthContext();
 
   const [formData, setFormData] = useState({
     givenName: "",
@@ -32,6 +32,7 @@ const NewAddressForm = () => {
     const { givenName, surName, country, city, street, state, postalCode } =
       formData;
 
+    // Basic validations
     if (
       !givenName.trim() ||
       !surName.trim() ||
@@ -43,6 +44,17 @@ const NewAddressForm = () => {
     ) {
       setStatusMessage("❌ الرجاء تعبئة جميع الحقول المطلوبة بشكل صحيح");
       return;
+    }
+
+    // ✅ Postal code validation for Jordan
+    if (country === "JO") {
+      const postal = parseInt(postalCode, 10);
+      if (isNaN(postal) || postal < 11000 || postal > 19000) {
+        setStatusMessage(
+          "❌ الرمز البريدي يجب أن يكون بين 11000 و 19000 للأردن"
+        );
+        return;
+      }
     }
 
     setStatusMessage("جارٍ إرسال البيانات...");
