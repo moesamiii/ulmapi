@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import trashIcon from "../../assets/icons/trash.png";
 import penIcon from "../../assets/icons/pen.png";
-import { getToken } from "../../features/auth/utils/tokenUtils"; // ✅ المسار الصحيح من الصورة
+import { getToken } from "../../features/auth/utils/tokenUtils";
+import ReactModal from "react-modal";
+
+ReactModal.setAppElement("#root");
 
 const SavedAddresses = () => {
   const [addresses, setAddresses] = useState([]);
@@ -18,7 +21,12 @@ const SavedAddresses = () => {
     postalCode: "",
   });
 
-  const token = getToken(); // ✅ التوكن من secure-ls
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    addressId: null,
+  });
+
+  const token = getToken();
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -53,10 +61,14 @@ const SavedAddresses = () => {
     fetchAddresses();
   }, [token]);
 
-  const handleDelete = async (id) => {
+  const confirmDelete = (id) => {
+    setDeleteModal({ isOpen: true, addressId: id });
+  };
+
+  const handleDelete = async () => {
     try {
       const res = await fetch(
-        `https://test.newulmmed.com/api/BillingAddress/DeleteBillingAddress/${id}`,
+        `https://test.newulmmed.com/api/BillingAddress/DeleteBillingAddress/${deleteModal.addressId}`,
         {
           method: "DELETE",
           headers: {
@@ -67,7 +79,10 @@ const SavedAddresses = () => {
 
       if (!res.ok) throw new Error("فشل الحذف");
 
-      setAddresses((prev) => prev.filter((addr) => addr.id !== id));
+      setAddresses((prev) =>
+        prev.filter((addr) => addr.id !== deleteModal.addressId)
+      );
+      setDeleteModal({ isOpen: false, addressId: null });
     } catch (err) {
       console.error("Error deleting address:", err);
       alert("حدث خطأ أثناء الحذف");
@@ -170,7 +185,7 @@ const SavedAddresses = () => {
                     />
                   </button>
                   <button
-                    onClick={() => handleDelete(address.id)}
+                    onClick={() => confirmDelete(address.id)}
                     className="w-[18px] h-[18px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
                   >
                     <img
@@ -230,6 +245,41 @@ const SavedAddresses = () => {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ReactModal
+        isOpen={deleteModal.isOpen}
+        onRequestClose={() =>
+          setDeleteModal({ isOpen: false, addressId: null })
+        }
+        className="bg-white p-6 max-w-md mx-auto rounded-xl shadow-xl border outline-none text-center"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
+      >
+        <div
+          className="flex flex-col items-center space-y-4 text-center"
+          dir="rtl"
+        >
+          <div className="text-red-500 text-5xl">⚠️</div>
+          <h2 className="text-lg font-bold text-[#1C1C1C]">تأكيد الحذف</h2>
+          <p className="text-sm text-gray-600">
+            هل أنت متأكد من حذف هذا العنوان؟ لا يمكن التراجع عن هذا الإجراء.
+          </p>
+          <div className="flex gap-4 justify-center mt-4 w-full">
+            <button
+              onClick={handleDelete}
+              className="bg-red-500 text-white px-6 py-2 rounded-md text-sm hover:bg-red-600 w-full"
+            >
+              حذف
+            </button>
+            <button
+              onClick={() => setDeleteModal({ isOpen: false, addressId: null })}
+              className="bg-gray-200 text-[#1C1C1C] px-6 py-2 rounded-md text-sm hover:bg-gray-300 w-full"
+            >
+              رجوع
+            </button>
+          </div>
+        </div>
+      </ReactModal>
     </div>
   );
 };
