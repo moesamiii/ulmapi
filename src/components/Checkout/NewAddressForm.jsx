@@ -226,7 +226,6 @@ const InputField = ({ name, label, value, onChange }) => (
   </div>
 );
 
-// ✅ قائمة منسدلة مخصصة (بتنسيق Figma)
 const CustomCountrySelect = ({ label, value, onChange }) => {
   const [open, setOpen] = useState(false);
   const selected = countries.find((c) => c.code === value);
@@ -235,9 +234,10 @@ const CustomCountrySelect = ({ label, value, onChange }) => {
     <div className="relative text-sm text-right">
       <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
 
+      {/* ✅ جعل الشكل مطابق لباقي الحقول */}
       <div
         onClick={() => setOpen(!open)}
-        className="flex justify-between items-center border border-[#D8D8D8] rounded-[16px] px-4 py-3 bg-white cursor-pointer"
+        className="flex justify-between items-center border border-[#D8D8D8] rounded-[8px] p-3 bg-white cursor-pointer"
       >
         {selected ? (
           <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ const CustomCountrySelect = ({ label, value, onChange }) => {
       </div>
 
       {open && (
-        <div className="absolute z-10 w-full bg-white mt-1 rounded-[16px] shadow-md max-h-60 overflow-auto border border-[#D8D8D8]">
+        <div className="absolute z-10 w-full bg-white mt-1 rounded-[8px] shadow-md max-h-60 overflow-auto border border-[#D8D8D8]">
           {countries.map((country) => (
             <div
               key={country.code}
