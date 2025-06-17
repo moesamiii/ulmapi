@@ -8,7 +8,7 @@ const CheckoutNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="pt-[64px] bg-[#F9FAFB]">
+    <header className="pt-[5px] bg-[#F9FAFB]">
       <nav className="w-full bg-white border-b border-[#FFFFFF]">
         <div className="max-w-[1440px] h-[42px] mx-auto flex items-center justify-between px-4 md:px-[80px]">
           {/* Left: Logo + Navigation */}
