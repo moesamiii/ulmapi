@@ -1,3 +1,5 @@
+// 🟡 Original logic (commented out temporarily due to backend error)
+/*
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -31,22 +33,26 @@ const MedicalTestsPage = () => {
       setLoading(true);
       setError(null);
 
-      const url =
-        "https://newulmmed.com/api/MedicalTest/GetAllActiveMedicalTestsWithoutPrice";
+      // ⚠️ Temporarily disabled due to backend 500 error
+      // const url =
+      //   "https://newulmmed.com/api/MedicalTest/GetAllActiveMedicalTestsWithoutPrice";
 
-      const response = await axios.get(url, {
-        params: {
-          pageNumber: currentPage,
-          pageSize: pageSize,
-        },
-      });
+      // const response = await axios.get(url, {
+      //   params: {
+      //     pageNumber: currentPage,
+      //     pageSize: pageSize,
+      //   },
+      // });
 
-      const data = response.data;
+      // const data = response.data;
+      // const formattedData = data.data || [];
 
-      const formattedData = data.data || [];
+      // setTests(formattedData);
+      // setTotalPages(Math.ceil((data.totalCount || 0) / pageSize));
 
-      setTests(formattedData);
-      setTotalPages(Math.ceil((data.totalCount || 0) / pageSize));
+      // 👉 Temporary fallback
+      setError("🚧 تم تعطيل تحميل الفحوصات مؤقتًا بسبب تحديث في الخادم.");
+      setTests([]);
     } catch (err) {
       let errorMsg = t("fetch_error");
       if (err.response?.data?.message) {
@@ -95,6 +101,39 @@ const MedicalTestsPage = () => {
           onPageChange={handlePageChange}
         />
       )}
+
+      <Footer />
+
+      <StickyButton
+        label="Chat on WhatsApp"
+        phoneNumber="00962785050875"
+        message="Hello, I want to get in touch!"
+        icon={<i className="fab fa-whatsapp"></i>}
+      />
+    </div>
+  );
+};
+
+export default MedicalTestsPage;
+*/
+
+// 🟢 Temporary minimal version (safe)
+import Navbar from "../components/Navbar/Navbar";
+import Footer from "../components/Footer/Footer";
+import StickyButton from "../components/StickyButton/StickyButton";
+
+const MedicalTestsPage = () => {
+  return (
+    <div className="medical-tests-page text-center pt-10">
+      <Navbar />
+
+      <div className="max-w-xl mx-auto mt-20 p-6 bg-white rounded shadow">
+        <h1 className="text-xl font-bold mb-4">🚧 جاري التحديث</h1>
+        <p className="text-gray-700 text-lg">
+          تم تعطيل صفحة الفحوصات مؤقتًا بسبب تحديث في الخادم.
+        </p>
+        <p className="text-gray-500 mt-2">الرجاء المحاولة لاحقًا.</p>
+      </div>
 
       <Footer />
 
