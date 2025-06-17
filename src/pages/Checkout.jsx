@@ -7,22 +7,18 @@ import NewAddressForm from "../components/Checkout/NewAddressForm";
 import PaymentMethod from "../components/Checkout/PaymentMethod";
 import CheckoutFooter from "../components/Checkout/CheckoutFooter";
 
-// ✅ Modal UI inside same file or can be moved to a separate component file
+// ✅ Modal: Confirm Payment
 const PaymentConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md text-center shadow-lg relative">
-        {/* Close Button */}
         <button
           onClick={onCancel}
           className="absolute top-4 left-4 text-gray-400 hover:text-gray-600"
         >
           ✕
         </button>
-
-        {/* Icon */}
         <div className="flex justify-center mb-4">
           <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
             <img
@@ -32,16 +28,10 @@ const PaymentConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
             />
           </div>
         </div>
-
-        {/* Title */}
         <h2 className="text-xl font-bold mb-2">تأكيد الدفع</h2>
-
-        {/* Description */}
         <p className="text-gray-600 mb-6">
           سيتم خصم المبلغ من بطاقتك بعد تأكيد العملية. هل ترغب في المتابعة؟
         </p>
-
-        {/* Buttons */}
         <div className="flex justify-between gap-4">
           <button
             onClick={onCancel}
@@ -61,21 +51,75 @@ const PaymentConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
   );
 };
 
+// ✅ Modal: Success After Payment
+const PaymentSuccessModal = ({ isOpen, onClose, onEdit }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md text-center shadow-lg relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 left-4 text-gray-400 hover:text-gray-600"
+        >
+          ✕
+        </button>
+        <div className="flex justify-center mb-4">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/845/845646.png"
+              alt="Check Icon"
+              className="w-8 h-8"
+            />
+          </div>
+        </div>
+        <h2 className="text-xl font-bold mb-2">تم إرسال طلبك!</h2>
+        <p className="text-gray-600 mb-6">
+          تم إرسال طلب التأمين بنجاح، سيتم مراجعته والموافقة عليه قريباً.
+        </p>
+        <div className="flex justify-between gap-4">
+          <button
+            onClick={onEdit}
+            className="w-full border border-[#0798F1] text-[#0798F1] py-2 rounded-lg font-semibold text-sm"
+          >
+            تعديل الطلب
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full bg-[#0798F1] hover:bg-[#007dd1] text-white py-2 rounded-lg font-semibold text-sm"
+          >
+            موافق
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Checkout = () => {
-  const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handlePaymentClick = () => {
-    setShowModal(true);
+    setShowConfirmModal(true);
   };
 
   const confirmPayment = () => {
-    setShowModal(false);
-    // ✅ Replace this with real payment logic
-    alert("✅ تم تأكيد الدفع بنجاح");
+    setShowConfirmModal(false);
+    setShowSuccessModal(true); // Show second modal
   };
 
   const cancelPayment = () => {
-    setShowModal(false);
+    setShowConfirmModal(false);
+  };
+
+  const closeSuccess = () => {
+    setShowSuccessModal(false);
+  };
+
+  const editOrder = () => {
+    setShowSuccessModal(false);
+    // Navigate or scroll to edit section if needed
+    alert("🔧 تعديل الطلب");
   };
 
   return (
@@ -85,7 +129,6 @@ const Checkout = () => {
 
       <main className="max-w-[1280px] mx-auto mt-6 p-4 md:p-8 flex flex-col lg:flex-row-reverse gap-[20px] bg-white rounded-xl shadow-sm">
         <OrderSummary />
-
         <section className="w-full lg:w-1/2 flex flex-col gap-6">
           <SavedAddresses />
           <NewAddressForm />
@@ -102,11 +145,18 @@ const Checkout = () => {
         </button>
       </div>
 
-      {/* Modal Component */}
+      {/* First Modal */}
       <PaymentConfirmationModal
-        isOpen={showModal}
+        isOpen={showConfirmModal}
         onConfirm={confirmPayment}
         onCancel={cancelPayment}
+      />
+
+      {/* Second Modal */}
+      <PaymentSuccessModal
+        isOpen={showSuccessModal}
+        onClose={closeSuccess}
+        onEdit={editOrder}
       />
 
       <CheckoutFooter />
