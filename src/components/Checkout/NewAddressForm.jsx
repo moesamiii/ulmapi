@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useAuthContext } from "../../features/auth/context/AuthProvider";
 
+// ✅ الدول المدعومة
+const countries = [
+  { code: "JO", name: "الأردن", flag: "https://flagcdn.com/w40/jo.png" },
+  { code: "SA", name: "السعودية", flag: "https://flagcdn.com/w40/sa.png" },
+  { code: "EG", name: "مصر", flag: "https://flagcdn.com/w40/eg.png" },
+  { code: "AE", name: "الإمارات", flag: "https://flagcdn.com/w40/ae.png" },
+];
+
 const NewAddressForm = () => {
   const { token, tokenReady } = useAuthContext();
 
@@ -15,11 +23,15 @@ const NewAddressForm = () => {
   });
 
   const [statusMessage, setStatusMessage] = useState("");
-  const [showForm, setShowForm] = useState(false); // Controls form visibility
+  const [showForm, setShowForm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCountryChange = (val) => {
+    setFormData((prev) => ({ ...prev, country: val }));
   };
 
   const handleSubmit = async (e) => {
@@ -33,7 +45,6 @@ const NewAddressForm = () => {
     const { givenName, surName, country, city, street, state, postalCode } =
       formData;
 
-    // Basic validations
     if (
       !givenName.trim() ||
       !surName.trim() ||
@@ -47,7 +58,6 @@ const NewAddressForm = () => {
       return;
     }
 
-    // Postal code validation for Jordan
     if (country === "JO") {
       const postal = parseInt(postalCode, 10);
       if (isNaN(postal) || postal < 11000 || postal > 19000) {
@@ -76,7 +86,6 @@ const NewAddressForm = () => {
 
       if (response.ok) {
         setStatusMessage("✅ تم حفظ العنوان بنجاح");
-        // Reset form and hide it after successful submission
         setFormData({
           givenName: "",
           surName: "",
@@ -148,11 +157,10 @@ const NewAddressForm = () => {
               value={formData.surName}
               onChange={handleChange}
             />
-            <SelectField
-              name="country"
-              label="الدولة"
+            <CustomCountrySelect
               value={formData.country}
-              onChange={handleChange}
+              onChange={handleCountryChange}
+              label="الدولة"
             />
             <InputField
               name="city"
@@ -203,7 +211,7 @@ const NewAddressForm = () => {
   );
 };
 
-// Reusable Input Component
+// ✅ حقل إدخال قابل لإعادة الاستخدام
 const InputField = ({ name, label, value, onChange }) => (
   <div>
     <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
@@ -218,22 +226,70 @@ const InputField = ({ name, label, value, onChange }) => (
   </div>
 );
 
-// Country Selector
-const SelectField = ({ name, label, value, onChange }) => (
-  <div>
-    <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full border border-[#D8D8D8] rounded-[8px] p-3 bg-white"
-    >
-      <option value="JO">الأردن</option>
-      <option value="SA">السعودية</option>
-      <option value="EG">مصر</option>
-      <option value="AE">الإمارات</option>
-    </select>
-  </div>
-);
+// ✅ قائمة منسدلة مخصصة (بتنسيق Figma)
+const CustomCountrySelect = ({ label, value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const selected = countries.find((c) => c.code === value);
+
+  return (
+    <div className="relative text-sm text-right">
+      <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
+
+      <div
+        onClick={() => setOpen(!open)}
+        className="flex justify-between items-center border border-[#D8D8D8] rounded-[16px] px-4 py-3 bg-white cursor-pointer"
+      >
+        {selected ? (
+          <div className="flex items-center gap-2">
+            <img
+              src={selected.flag}
+              alt={selected.name}
+              className="w-[26px] h-[13px] rounded-[4px]"
+            />
+            <span>{selected.name}</span>
+          </div>
+        ) : (
+          <span className="text-gray-400">اختر الدولة</span>
+        )}
+
+        <svg
+          className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </div>
+
+      {open && (
+        <div className="absolute z-10 w-full bg-white mt-1 rounded-[16px] shadow-md max-h-60 overflow-auto border border-[#D8D8D8]">
+          {countries.map((country) => (
+            <div
+              key={country.code}
+              onClick={() => {
+                onChange(country.code);
+                setOpen(false);
+              }}
+              className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            >
+              <span>{country.name}</span>
+              <img
+                src={country.flag}
+                alt={country.name}
+                className="w-[26px] h-[13px] rounded-[4px]"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default NewAddressForm;
