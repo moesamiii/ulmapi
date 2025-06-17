@@ -15,6 +15,7 @@ const NewAddressForm = () => {
   });
 
   const [statusMessage, setStatusMessage] = useState("");
+  const [showForm, setShowForm] = useState(false); // Controls form visibility
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +47,7 @@ const NewAddressForm = () => {
       return;
     }
 
-    // ✅ Postal code validation for Jordan
+    // Postal code validation for Jordan
     if (country === "JO") {
       const postal = parseInt(postalCode, 10);
       if (isNaN(postal) || postal < 11000 || postal > 19000) {
@@ -75,6 +76,20 @@ const NewAddressForm = () => {
 
       if (response.ok) {
         setStatusMessage("✅ تم حفظ العنوان بنجاح");
+        // Reset form and hide it after successful submission
+        setFormData({
+          givenName: "",
+          surName: "",
+          country: "JO",
+          city: "",
+          street: "",
+          state: "",
+          postalCode: "",
+        });
+        setTimeout(() => {
+          setShowForm(false);
+          setStatusMessage("");
+        }, 2000);
       } else {
         const data = await response.json();
         console.error("Server Error:", data);
@@ -87,82 +102,108 @@ const NewAddressForm = () => {
   };
 
   return (
-    <div
-      className="bg-white p-6 rounded-xl shadow-sm w-full max-w-[582px]"
-      dir="rtl"
-    >
-      <h3 className="text-base font-semibold mb-6 text-[#1C1C1C]">
-        إضافة عنوان جديد
-      </h3>
+    <div className="w-full max-w-[582px]">
+      {!showForm ? (
+        <div className="flex justify-center items-center py-6">
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 text-[#0798F1] hover:text-[#007dd1] text-sm font-medium underline"
+          >
+            <span>إضافة عنوان جديد</span>
+            <span className="bg-[#0798F1] text-white rounded-full w-6 h-6 flex items-center justify-center text-base leading-none">
+              +
+            </span>
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white p-6 rounded-xl shadow-sm" dir="rtl">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-base font-semibold text-[#1C1C1C]">
+              إضافة عنوان جديد
+            </h3>
+            <button
+              onClick={() => {
+                setShowForm(false);
+                setStatusMessage("");
+              }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 text-sm text-right"
-      >
-        <InputField
-          name="givenName"
-          label="الاسم الأول"
-          value={formData.givenName}
-          onChange={handleChange}
-        />
-        <InputField
-          name="surName"
-          label="الاسم الأخير"
-          value={formData.surName}
-          onChange={handleChange}
-        />
-        <SelectField
-          name="country"
-          label="الدولة"
-          value={formData.country}
-          onChange={handleChange}
-        />
-        <InputField
-          name="city"
-          label="المدينة"
-          value={formData.city}
-          onChange={handleChange}
-        />
-        <InputField
-          name="street"
-          label="اسم الشارع"
-          value={formData.street}
-          onChange={handleChange}
-        />
-        <InputField
-          name="state"
-          label="المنطقة / الولاية"
-          value={formData.state}
-          onChange={handleChange}
-        />
-        <InputField
-          name="postalCode"
-          label="الرمز البريدي"
-          value={formData.postalCode}
-          onChange={handleChange}
-        />
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 text-sm text-right"
+          >
+            <InputField
+              name="givenName"
+              label="الاسم الأول"
+              value={formData.givenName}
+              onChange={handleChange}
+            />
+            <InputField
+              name="surName"
+              label="الاسم الأخير"
+              value={formData.surName}
+              onChange={handleChange}
+            />
+            <SelectField
+              name="country"
+              label="الدولة"
+              value={formData.country}
+              onChange={handleChange}
+            />
+            <InputField
+              name="city"
+              label="المدينة"
+              value={formData.city}
+              onChange={handleChange}
+            />
+            <InputField
+              name="street"
+              label="اسم الشارع"
+              value={formData.street}
+              onChange={handleChange}
+            />
+            <InputField
+              name="state"
+              label="المنطقة / الولاية"
+              value={formData.state}
+              onChange={handleChange}
+            />
+            <InputField
+              name="postalCode"
+              label="الرمز البريدي"
+              value={formData.postalCode}
+              onChange={handleChange}
+            />
 
-        <button
-          type="submit"
-          disabled={!tokenReady}
-          className={`bg-[#0798F1] hover:bg-[#007dd1] text-white text-sm font-medium px-6 py-2 rounded-[8px] self-end ${
-            !tokenReady ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          حفظ
-        </button>
+            <div className="flex justify-between items-center mt-2">
+              <button
+                type="submit"
+                disabled={!tokenReady}
+                className={`bg-[#0798F1] hover:bg-[#007dd1] text-white text-sm font-medium px-6 py-2 rounded-[8px] ${
+                  !tokenReady ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                حفظ
+              </button>
 
-        {statusMessage && (
-          <p className="text-sm mt-2 text-right text-[#1C1C1C]">
-            {statusMessage}
-          </p>
-        )}
-      </form>
+              {statusMessage && (
+                <p className="text-sm text-right text-[#1C1C1C]">
+                  {statusMessage}
+                </p>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
 
-// ✅ Reusable Input Component
+// Reusable Input Component
 const InputField = ({ name, label, value, onChange }) => (
   <div>
     <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
@@ -177,7 +218,7 @@ const InputField = ({ name, label, value, onChange }) => (
   </div>
 );
 
-// ✅ Country Selector
+// Country Selector
 const SelectField = ({ name, label, value, onChange }) => (
   <div>
     <label className="block mb-1 text-[#1C1C1C] font-medium">{label}</label>
