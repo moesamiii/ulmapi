@@ -172,7 +172,7 @@ const SavedAddresses = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(address)}
-                    className="w-[18px] h-[18px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
+                    className="w-[24px] h-[24px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
                   >
                     <img
                       src={penIcon}
@@ -182,7 +182,7 @@ const SavedAddresses = () => {
                   </button>
                   <button
                     onClick={() => confirmDelete(address.id)}
-                    className="w-[18px] h-[18px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
+                    className="w-[24px] h-[24px] p-[2px] bg-white rounded-md shadow-sm hover:opacity-80 transition"
                   >
                     <img
                       src={trashIcon}
